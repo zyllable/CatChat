@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<title>CatChat Documentation - Title</title>
+		<style>
+			#theCanvas {
+				background-color: black;
+			}
+			#theButton, #theCanvas {
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>FrameGroup</h1>
+		<h2>A way of importing a spritesheet and sectioning it into groups that can be animated.</h2>
+		<h3>Technical Details</h3>
+		<p>Takes a spritesheet, height and width of each frame, and then each range of frames (index starts at 0).</p>
+		<p>Ranges are taken as 2 element arrays storing numbers.</p>
+		<p>Individual frames are stored as Box objects, while only one image itself is stored as context.drawImage() supports sectioning of images.</p>
+	</body>
+	<script src="main.js"></script>
+</html>
