@@ -25,7 +25,12 @@ const STANDARD_INTERVAL = 20; //standard interval for Sprite.moveTimed() and Spr
 
 //reusable functions
 const compareBoxes = (a, b) => {
-	return a.y - b.y;
+	return (a.y + a.height) - (b.y + b.height);
+}
+const createImage = (url) => {
+	let image = new Image();
+	image.src = url;
+	return image;
 }
 
 //classes
@@ -57,19 +62,19 @@ class Scene {
 	render(context) {
 		//sort sprites using compareBoxes(a, b)
 		//then render sprites in order
-		sprites.sort(compareBoxes);
-		sprites.forEach((sprite) => {sprite.render(context)});
+		this.sprites.sort(compareBoxes);
+		this.sprites.forEach((sprite) => {sprite.render(context)});
 	}
 	addSprite(sprite) {
-		sprites[sprite.id] = sprite;
+		this.sprites[sprite.id] = sprite;
 		sprite.parent = this;
 	}
 	removeSprite(id) {
-		sprites[id].parent = undefined;
+		this.sprites[id].parent = undefined;
 		delete sprites[id];
 	};
 	addCollision(box) {
-		collisions[box.id] = box;
+		this.collisions[box.id] = box;
 	}
 }
 class Box {
@@ -156,8 +161,27 @@ class Sprite extends Box {
 	}
 
 	render(context) {
-		context.drawImage(this.image, x, y, width, height);
+		context.drawImage(this.image, this.x, this.y, this.width, this.height);
 	}
 }
 
 //main functions
+const setCanvasBackground = (scene, canvas) => {
+	canvas.style.background = "url(" + scene.background + ")";
+}
+
+let canvas = document.querySelector("#theCanvas");
+let context = canvas.getContext("2d")
+
+const renderLoop = (scene) => {
+	context.clearRect(0, 0, canvas.width, canvas.height)
+	scene.render(context)
+	requestAnimationFrame(() => {renderLoop(scene)})
+}
+window.addEventListener("load", 
+	() => {
+		let scene = new Scene(1000, 1000, "")
+		setCanvasBackground(scene, canvas);
+		renderLoop(scene);
+	}
+)
