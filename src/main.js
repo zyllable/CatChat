@@ -237,11 +237,11 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 		this.currentFrameIndex = i;
 		this.currentFrame = this.frameGroups[currentFrameGroup][this.currentFrameIndex];
 	}
-	switchGroup = (i) => {
+	switchGroup(i) {
 		this.currentFrameGroup = i;
 		toFrame(0);
 	}
-	nextFrame = () => {
+	nextFrame() {
 		this.currentFrameIndex++;
 		if (this.currentFrameIndex == this.frameGroups[this.currentFrameGroup].length) {
 			this.currentFrameIndex = 0;
@@ -252,7 +252,7 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 		}
 		return false;
 	}
-	previousFrame = () => {
+	previousFrame() {
 		this.currentFrameIndex--;
 		if (this.currentFrameIndex == -1) {
 			this.currentFrameIndex = this.frameGroups[this.currentFrameGroup].length - 1;
@@ -270,7 +270,6 @@ class AnimatedSprite extends Sprite {
 		ATTRIBUTES
 		ci-id=string - the ID of the sprite, to be used in the associative array for sprites
 		c-spriteSheet=SpriteSheet - the spritesheet to be used
-		ci-image=any canvas drawaable image - the image to be shown -- should be image stored in variable so it can be reused
 		ci-x=number - the x position
 		ci-y=number - the y position
 		ci-width=number - width of the image -- automatically set to image width if not defined
@@ -282,12 +281,24 @@ class AnimatedSprite extends Sprite {
 		i-moveTimed(dx, dy, time, interval) moves by 𝚫x/interval and 𝚫y/interval over time milliseconds -- uses move with setinterval and counter
 		i-moveTo(x, y) moves to x and y -- uses move
 		i-moveToTimed(x, y, time, interval) moves to x and y by 𝚫x/interval and 𝚫y/interval over time milliseconds -- uses movetimed
-		startAnimation(interval, reverse=bool) - starts the animation, returns true every time it reaches 0
+		startAnimation(reverse=bool, interval) - starts the animation, returns true every time it reaches 0
 		stopAnimation() - removes the animation timer, returns This so it an be chained with toFrame
 		switchAnimation(frameGroup) - sets spritesheet frameGroup to specified number
 		toFrame(i, ii) - goes to frameGroup[i, ii] from spritesheet
 		loopAnimation(reps, interval, reverse) - goes through animation the specified amount of times
 	*/
+
+	constructor(id, spriteSheet, x, y, width, height) {
+		super(id, x, y, undefined, width, height);
+		this.spriteSheet = spriteSheet;
+	}
+
+	render(context) {
+		context.drawImage(spriteSheet.image, spriteSheet.currentFrame.x, spriteSheet.currentFrame.y, spriteSheet.frameWidth, spriteSheet.frameHeight, x, y, width, height)
+	}
+	startAnimation(reverse=false, interval=STANDARD_INTERVAL) {
+
+	}
 }
 
 //main functions
