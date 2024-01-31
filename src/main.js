@@ -11,7 +11,7 @@ classes:
 
 class Thing {
 	comment start
-		ATTRIBUTES
+		ATTRIBUTES (that are meant to be used)
 		attribute=type - definition -- implementation notes
 		c-attributeInConstructor
 		i-inheritedAttribute
@@ -21,7 +21,7 @@ class Thing {
 */
 
 //constants
-const STANDARD_INTERVAL = 20; //standard interval for Sprite.moveTimed() and Sprite.moveToTimed(), 50 times per second
+const STANDARD_INTERVAL = 50; //standard interval for Sprite.moveTimed() and Sprite.moveToTimed(), 20 times per second
 
 //reusable functions
 const compareBoxes = (a, b) => {
@@ -188,14 +188,15 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 		toFrame(frame) - switches to the specified frame
 		switchGroup(index) - switches to the specified group of frames on the spritesheet
 	*/
-	frameGroups = [];
-	currentFrameGroup = 0;
-	currentFrameIndex = 0;
-
 	constructor(image, frameWidth, frameHeight, ...ranges) {
 		this.image = image;
 		let width = image.width;
 		let height = image.height;
+		this.frameWidth = frameWidth;
+		this.frameHeight = frameHeight;
+		this.frameGroups = [];
+		this.currentFrameGroup = 0;
+		this.currentFrameIndex = 0;
 		let columns = Math.floor(width / frameWidth)
 		let rows = Math.floor(height / frameHeight);
 		if (!columns || !rows) {throw Error(`Image too small for specified frame height/width\nImage size: ${width}x${height}\nFrame size: ${frameWidth}x${frameHeight}`)}
@@ -233,21 +234,23 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 		}
 		this.currentFrame = this.frameGroups[this.currentFrameGroup][this.currentFrameIndex];
 	}
-	toFrame = (i) => {
+
+	toFrame(i) {
 		this.currentFrameIndex = i;
-		this.currentFrame = this.frameGroups[currentFrameGroup][this.currentFrameIndex];
+		this.currentFrame = this.frameGroups[this.currentFrameGroup][this.currentFrameIndex];
 	}
 	switchGroup(i) {
 		this.currentFrameGroup = i;
-		toFrame(0);
+		this.toFrame(0);
 	}
 	nextFrame() {
+		console.log(this)
 		this.currentFrameIndex++;
 		if (this.currentFrameIndex == this.frameGroups[this.currentFrameGroup].length) {
 			this.currentFrameIndex = 0;
 		}
-		this.currentFrame = this.frameGroups[currentFrameGroup][this.currentFrameIndex];
-		if (this.currentFrameIndex = 0) {
+		this.currentFrame = this.frameGroups[this.currentFrameGroup][this.currentFrameIndex];
+		if (this.currentFrameIndex == 0) {
 			return true;
 		}
 		return false;
@@ -258,7 +261,7 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 			this.currentFrameIndex = this.frameGroups[this.currentFrameGroup].length - 1;
 		}
 		this.currentFrame = this.frameGroups[currentFrameGroup][this.currentFrameIndex];
-		if (this.currentFrameIndex = 0) {
+		if (this.currentFrameIndex == 0) {
 			return true;
 		}
 		return false;
@@ -281,10 +284,10 @@ class AnimatedSprite extends Sprite {
 		i-moveTimed(dx, dy, time, interval) moves by 𝚫x/interval and 𝚫y/interval over time milliseconds -- uses move with setinterval and counter
 		i-moveTo(x, y) moves to x and y -- uses move
 		i-moveToTimed(x, y, time, interval) moves to x and y by 𝚫x/interval and 𝚫y/interval over time milliseconds -- uses movetimed
-		startAnimation(reverse=bool, interval) - starts the animation, returns true every time it reaches 0
+		startAnimation(reverse=bool, interval) - starts the animation, does not return This
 		stopAnimation() - removes the animation timer, returns This so it an be chained with toFrame
-		switchAnimation(frameGroup) - sets spritesheet frameGroup to specified number
-		toFrame(i, ii) - goes to frameGroup[i, ii] from spritesheet
+		switchAnimation(frameGroup) - sets spritesheet frameGroup to specified number - returns This so it can be chained
+		toFrame(frame, group) - goes to frameGroup[frame, group] from spritesheet - returns This so it can be chained
 		loopAnimation(reps, interval, reverse) - goes through animation the specified amount of times
 	*/
 
@@ -294,10 +297,67 @@ class AnimatedSprite extends Sprite {
 	}
 
 	render(context) {
-		context.drawImage(spriteSheet.image, spriteSheet.currentFrame.x, spriteSheet.currentFrame.y, spriteSheet.frameWidth, spriteSheet.frameHeight, x, y, width, height)
+		console.log(this.spriteSheet.currentFrameIndex)
+		context.drawImage(this.spriteSheet.image, 
+			this.spriteSheet.currentFrame.x, 
+			this.spriteSheet.currentFrame.y, 
+			this.spriteSheet.frameWidth, 
+			this.spriteSheet.frameHeight, 
+			this.x, 
+			this.y, 
+			this.width, 
+			this.height
+		)
 	}
-	startAnimation(reverse=false, interval=STANDARD_INTERVAL) {
 
+	//stores the interval for frameswaps
+	animationInterval;
+	startAnimation(reverse=false, interval=STANDARD_INTERVAL) {
+		if (!reverse) {
+			this.animationInterval = setInterval(() => {this.spriteSheet.nextFrame()}, interval);
+		} else {
+			this.animationInterval = setInterval(() => {this.spriteSheet.previousFrame()}, interval);
+		}
+		
+	}
+	stopAnimation() {
+		clearInterval(this.animationInterval);
+		return this;
+	}
+	toFrame(frame, group) {
+		if (group) {
+			this.spriteSheet.switchGroup(group)
+		}
+		this.spriteSheet.toFrame(group);
+
+	}
+	switchAnimation(frameGroup) {
+		this.spriteSheet.switchGroup(frameGroup);
+		return this;
+	}
+	loopAnimation(reps, interval=STANDARD_INTERVAL, reverse=false) {
+		let counter = 0;
+		let totalFrames = reps * this.spriteSheet.currentFrameGroup.length;
+		let loopInterval;
+		let countFrame;
+		if (!reverse) {
+			countFrame = () => {
+				this.spreadSheet.nextFrame();
+				counter++;
+				if (counter == totalFrames) {
+					clearInterval(loopInterval)
+				}
+			}
+		} else {
+			countFrame = () => {
+				this.spreadSheet.previousFrame();
+				counter++;
+				if (counter == totalFrames) {
+					clearInterval(loopInterval)
+				}
+			}
+		}
+		loopInterval = setInterval(countFrame, STANDARD_INTERVAL);
 	}
 }
 
@@ -316,12 +376,15 @@ const renderLoop = (scene) => {
 }
 window.addEventListener("load", 
 	() => {
-		let scene = new Scene(1000, 1000, "")
+		let scene = new Scene(1000, 1000, "./sample.png")
 		let h = new Image();
 		h.src = "./sample.png";
 		let j = new SpriteSheet(h, 28, 18, [0, 4], [0, 9], [5, 7], [0, 99, true])
-		console.log(j);
+		let x = new AnimatedSprite(0, j, 50, 50, 100, 100)
+		scene.addSprite(x);
 		setCanvasBackground(scene, canvas);
 		renderLoop(scene);
+		x.switchAnimation(3)
+		x.startAnimation()
 	}
 )
