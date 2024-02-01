@@ -217,7 +217,7 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 	createFrameGroup(...frames) {
 		let newGroup = this.frameGroups[this.frameGroups.push([]) - 1]
 		for (let frame of frames) {
-			newGroup.push(frame);
+			newGroup.push(this.frames[frame]);
 		}
 	}
 	createFrameGroupInRange(start, end) {
@@ -371,10 +371,13 @@ window.addEventListener("load",
 		h.src = "./exp2.png";
 		let j = new SpriteSheet(h, 64, 64)
 		j.createFrameGroupInRange(0, 15);
+		j.createFrameGroup(1, 13, 7);
 		let x = new AnimatedSprite(1, j, 50, 50, 200, 200);
 		scene.addSprite(x);
 		setCanvasBackground(scene, canvas);
 		renderLoop(scene);
+		x.switchAnimation(1)
+		console.log(x)
 		x.startAnimation(false, 100)
 	}
 )
