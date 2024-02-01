@@ -208,7 +208,7 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 		let rows = Math.floor(height / frameHeight);
 		if (!columns || !rows) {throw Error(`Image too small for specified frame height/width\nImage size: ${width}x${height}\nFrame size: ${frameWidth}x${frameHeight}`)}
 		for (let i = 0; i < rows; i++) {
-			for (ii = 0; ii < columns; i++) {
+			for (let ii = 0; ii < columns; ii++) {
 				this.frames.push(new Box(undefined, frameWidth * ii, frameHeight * i, frameWidth, frameHeight))
 			}
 		}
@@ -222,7 +222,7 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 	}
 	createFrameGroupInRange(start, end) {
 		let newGroup = this.frameGroups[this.frameGroups.push([]) - 1]
-		for (let i = start; ii <= end; i++) {
+		for (let i = start; i <= end; i++) {
 			newGroup.push(this.frames[i]);
 		}
 	}
@@ -236,7 +236,6 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 		this.toFrame(0);
 	}
 	nextFrame() {
-		console.log(this)
 		this.currentFrameIndex++;
 		if (this.currentFrameIndex == this.frameGroups[this.currentFrameGroup].length) {
 			this.currentFrameIndex = 0;
@@ -252,7 +251,7 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 		if (this.currentFrameIndex == -1) {
 			this.currentFrameIndex = this.frameGroups[this.currentFrameGroup].length - 1;
 		}
-		this.currentFrame = this.frameGroups[currentFrameGroup][this.currentFrameIndex];
+		this.currentFrame = this.frameGroups[this.currentFrameGroup][this.currentFrameIndex];
 		if (this.currentFrameIndex == 0) {
 			return true;
 		}
@@ -279,7 +278,7 @@ class AnimatedSprite extends Sprite {
 		startAnimation(reverse=bool, interval) - starts the animation, does not return This
 		stopAnimation() - removes the animation timer, returns This so it an be chained with toFrame
 		switchAnimation(frameGroup) - sets spritesheet frameGroup to specified number - returns This so it can be chained
-		toFrame(frame, group) - goes to frameGroup[frame, group] from spritesheet - returns This so it can be chained
+		toFrame(group) - goes to frameGroup[frame, group] from spritesheet - returns This so it can be chained
 		loopAnimation(reps, interval, reverse) - goes through animation the specified amount of times
 	*/
 
@@ -289,7 +288,6 @@ class AnimatedSprite extends Sprite {
 	}
 
 	render(context) {
-		console.log(this.spriteSheet.currentFrameIndex)
 		context.drawImage(this.spriteSheet.image, 
 			this.spriteSheet.currentFrame.x, 
 			this.spriteSheet.currentFrame.y, 
@@ -316,7 +314,7 @@ class AnimatedSprite extends Sprite {
 		clearInterval(this.animationInterval);
 		return this;
 	}
-	toFrame(frame, group) {
+	toFrame(group) {
 		if (group) {
 			this.spriteSheet.switchGroup(group)
 		}
@@ -370,13 +368,13 @@ window.addEventListener("load",
 	() => {
 		let scene = new Scene(1000, 1000, "./sample.png")
 		let h = new Image();
-		h.src = "./explosion.bmp";
-		let j = new SpriteSheet(h, 150, 150)
-		j.createFrameGroupInRange(0, 23);
+		h.src = "./exp2.png";
+		let j = new SpriteSheet(h, 64, 64)
+		j.createFrameGroupInRange(0, 15);
 		let x = new AnimatedSprite(1, j, 50, 50, 200, 200);
 		scene.addSprite(x);
 		setCanvasBackground(scene, canvas);
 		renderLoop(scene);
-		x.startAnimation()
+		x.startAnimation(false, 100)
 	}
 )
