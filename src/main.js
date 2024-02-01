@@ -207,40 +207,6 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 		let columns = Math.floor(width / frameWidth)
 		let rows = Math.floor(height / frameHeight);
 		if (!columns || !rows) {throw Error(`Image too small for specified frame height/width\nImage size: ${width}x${height}\nFrame size: ${frameWidth}x${frameHeight}`)}
-		/*REMOVE BEFORE COMMITTING
-		let i = 0;
-		for (let range of ranges) {
-			this.frameGroups[i] = [];
-			let ii = 0;
-			const frames = getIntegerRange(range[0], range[1]);
-			if (!range[2]) {
-				for (let frame of frames) {
-					let column = frame % columns;
-					let row = Math.floor(frame / columns)
-					this.frameGroups[i][ii] = new Box(undefined, 
-						frameWidth * column, 
-						frameHeight * row, 
-						frameWidth, 
-						frameHeight
-					);
-					ii++
-				}
-			} else { //mirrored on x
-				for (let frame of frames) {
-					let column = frame % columns;
-					let row = Math.floor(frame / columns)
-					this.frameGroups[i][ii] = new Box(undefined, 
-						frameWidth * (column + 1), 
-						frameHeight * row, 
-						frameWidth * -1, 
-						frameHeight
-					);
-					ii++
-				}
-			}
-			i++;
-		}
-		*/
 		for (let i = 0; i < rows; i++) {
 			for (ii = 0; ii < columns; i++) {
 				this.frames.push(new Box(undefined, frameWidth * ii, frameHeight * i, frameWidth, frameHeight))
@@ -404,13 +370,13 @@ window.addEventListener("load",
 	() => {
 		let scene = new Scene(1000, 1000, "./sample.png")
 		let h = new Image();
-		h.src = "./sample.png";
-		let j = new SpriteSheet(h, 28, 18, [0, 4], [0, 9], [5, 7], [0, 99, true])
-		let x = new AnimatedSprite(0, j, 50, 50, 100, 100)
+		h.src = "./explosion.bmp";
+		let j = new SpriteSheet(h, 150, 150)
+		j.createFrameGroupInRange(0, 23);
+		let x = new AnimatedSprite(1, j, 50, 50, 200, 200);
 		scene.addSprite(x);
 		setCanvasBackground(scene, canvas);
 		renderLoop(scene);
-		x.switchAnimation(3)
 		x.startAnimation()
 	}
 )
