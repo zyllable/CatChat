@@ -24,6 +24,9 @@ class Thing {
 const STANDARD_INTERVAL = 50; //standard interval for Sprite.moveTimed() and Sprite.moveToTimed(), 20 times per second
 
 //reusable functions
+const indexLength = (array) => {
+	return array.length - 1;
+}
 const compareBoxes = (a, b) => {
 	return (a.y + a.height) - (b.y + b.height);
 }
@@ -178,28 +181,33 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 		c-image=image - the image object to be used
 		c-frameWidth=number - the width of each frame
 		c-frameHeight=number - the height of each frame
+		frames=array=box - contains all frames with 0 for the first frame
 		frameGroups=array=array=box - groups of frames
 		currentFrame=box - the current frame shown
 		currentFrameGroup=number
 		currentFrameIndex=number
 		METHODS
+		createFrameGroup(...frames=number) - creates a framegroup from the list of frame indexes starting at 0
+		createFrameGroupInRange(startFrame, endFrame) - creates a frame group from frame index startFrame to endFrame including all between
 		nextFrame() - switches to the next frame in the group, returns true if ends at frame 0
 		previousFrame() - switches to the previous frame in the, returns true if ends at frame 0
 		toFrame(frame) - switches to the specified frame
 		switchGroup(index) - switches to the specified group of frames on the spritesheet
 	*/
-	constructor(image, frameWidth, frameHeight, ...ranges) {
+	constructor(image, frameWidth, frameHeight) {
 		this.image = image;
 		let width = image.width;
 		let height = image.height;
 		this.frameWidth = frameWidth;
 		this.frameHeight = frameHeight;
+		this.frames = []
 		this.frameGroups = [];
 		this.currentFrameGroup = 0;
 		this.currentFrameIndex = 0;
 		let columns = Math.floor(width / frameWidth)
 		let rows = Math.floor(height / frameHeight);
 		if (!columns || !rows) {throw Error(`Image too small for specified frame height/width\nImage size: ${width}x${height}\nFrame size: ${frameWidth}x${frameHeight}`)}
+		/*REMOVE BEFORE COMMITTING
 		let i = 0;
 		for (let range of ranges) {
 			this.frameGroups[i] = [];
@@ -232,7 +240,25 @@ class SpriteSheet { //refer to external documentation for how this thing works, 
 			}
 			i++;
 		}
-		this.currentFrame = this.frameGroups[this.currentFrameGroup][this.currentFrameIndex];
+		*/
+		for (let i = 0; i < rows; i++) {
+			for (ii = 0; ii < columns; i++) {
+				this.frames.push(new Box(undefined, frameWidth * ii, frameHeight * i, frameWidth, frameHeight))
+			}
+		}
+		this.currentFrame = this.frames[0];
+	}
+	createFrameGroup(...frames) {
+		let newGroup = this.frameGroups[this.frameGroups.push([]) - 1]
+		for (let frame of frames) {
+			newGroup.push(frame);
+		}
+	}
+	createFrameGroupInRange(start, end) {
+		let newGroup = this.frameGroups[this.frameGroups.push([]) - 1]
+		for (let i = start; ii <= end; i++) {
+			newGroup.push(this.frames[i]);
+		}
 	}
 
 	toFrame(i) {
